@@ -1,0 +1,7 @@
+app:
+  host: "YOUR_IP_ADDRESS"  # 本机地址
+  port: 9089            # 本机端口
+
+stream:
+  pull_base_url: "http://YOUR_IP_ADDRESS:8080"    # 拉流地址
+  push_base_url: "rtmp://YOUR_IP_ADDRESS/live" # 推流地址

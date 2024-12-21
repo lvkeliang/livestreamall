@@ -13,12 +13,7 @@ var DB *gorm.DB
 
 func InitDB() {
 	// 配置数据库连接字符串
-	// 开发时用本地的数据库
-	// dsn := "root:123456@tcp(127.0.0.1:3306)/livestream?charset=utf8mb4&parseTime=True&loc=Local"
-	// 部署时使用
-	dsn := "LvKeliang:lkl12190711@tcp(localhost:3306)/livestream?charset=utf8mb4&parseTime=True&loc=Local"
-	// 开发时用云端的数据库
-	// dsn := "LvKeliang:lkl12190711@tcp(120.79.27.213:3306)/livestream?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "USER:PASSWORD@tcp(localhost:3306)/DATABASE?charset=utf8mb4&parseTime=True&loc=Local"
 
 	var err error
 

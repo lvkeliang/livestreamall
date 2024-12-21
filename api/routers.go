@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"livestreamall/config"
 	"net/http"
 )
 
@@ -25,9 +27,9 @@ func InitRouter() {
 		user.GET("/info", AuthMiddleware(), GetUserInfo) // 获取用户信息
 	}
 
-	r.POST("/auth/publish", PublishAuth)      // 推流认证
-	r.POST("/auth/stop_publish", StopPublish) // 停止推流
-	//r.GET("/stream/:stream_name", AuthMiddleware(), GetStreamURL) // 获取拉流地址
+	r.POST("/auth/publish", PublishAuth)            // 推流认证
+	r.POST("/auth/stop_publish", StopPublish)       // 停止推流
+	r.GET("/stream/:stream_name", GetPullStreamURL) // 获取拉流相关地址
 	//r.GET("/stream/:stream_id", StreamForwarding) // 配置流转发路由
 
 	live := r.Group("/live")
@@ -39,7 +41,7 @@ func InitRouter() {
 		live.GET("/live_rooms", GetLiveRooms)            // 获取直播间列表
 	}
 
-	r.Run(":9089")
+	r.Run(fmt.Sprintf(":%d", config.App.Port))
 }
 
 // CORSMiddleware 自定义CORS中间件

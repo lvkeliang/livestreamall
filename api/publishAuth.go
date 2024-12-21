@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"livestreamall/config"
 	"livestreamall/dao"
 	"livestreamall/model"
 	"net/http"
@@ -78,7 +79,7 @@ func StopPublish(c *gin.Context) {
 	// 从请求中获取流名称
 	streamName := c.PostForm("name")
 	app := c.PostForm("app") // RTMP 应用名称
-	ip := c.ClientIP()       // 推流客户端 IP
+	// ip := c.ClientIP()       // 推流客户端 IP
 
 	if app == "" || streamName == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing required parameters"})
@@ -99,8 +100,9 @@ func StopPublish(c *gin.Context) {
 
 	// 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
+
 		"message":     "stream stopped, status updated",
 		"stream_name": streamName,
-		"ip":          ip,
+		"push_url":    config.Stream.PushBaseURL,
 	})
 }

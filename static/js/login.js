@@ -1,3 +1,6 @@
+// 获取当前页面的协议、主机名和端口，生成动态的 API 基础 URL
+const baseURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+
 document.addEventListener("DOMContentLoaded", function() {
     // Select the card elements
     const loginCard = document.querySelector('.login');
@@ -39,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     // 可以将 token 保存到本地存储或 sessionStorage 中
                     localStorage.setItem("token", token);
                     // 跳转到主页或执行其他操作
-                    window.location.href = "http://47.92.137.133:9089/home";
+                    window.location.href = `${baseURL}/home`;
                 } else {
                     alert("登录失败：" + data.info);  // 显示后端返回的失败信息
                 }
@@ -86,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 发送请求的通用函数
     function sendRequest(url, body) {
-        return fetch(`http://47.92.137.133:9089${url}`, {
+        return fetch(`${baseURL}${url}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"

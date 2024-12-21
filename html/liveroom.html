@@ -38,7 +38,6 @@
 <body>
 <div class="player-container">
     <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto">
-        <source src="" type="application/x-mpegURL">
         您的浏览器不支持 HTML5 视频播放。
     </video>
 </div>
@@ -55,20 +54,40 @@
         return urlParams.get(name);
     }
 
-    // 获取流 ID 参数并构建流地址
+    // 获取流 ID 参数
     const streamId = getURLParameter('stream_id');  // 假设 URL 中有 stream_id 参数
 
     if (streamId) {
-        // 拼接 HLS 流地址
-        const hlsUrl = `http://47.92.137.133:8080/hls/${streamId}.m3u8`;
-        // 设置播放器源
-        player.src({
-            src: hlsUrl,
-            type: 'application/x-mpegURL',
-        });
-        player.play();
+        // 构建后端接口 URL
+        const apiUrl = `${window.location.origin}/stream/${streamId}`;
+
+        // 动态请求后端接口获取 HLS 地址
+        fetch(apiUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch stream info: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // 设置播放器源
+                const hlsUrl = data.hls_url;
+                if (hlsUrl) {
+                    player.src({
+                        src: hlsUrl,
+                        type: 'application/x-mpegURL',
+                    });
+                    player.play();
+                } else {
+                    alert("未能获取到有效的 HLS 地址！");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching stream info:", error);
+                alert("获取流信息失败，请稍后重试！");
+            });
     } else {
-        alert("缺少流 ID 或用户 ID 参数！");
+        alert("缺少流 ID 参数！");
     }
 </script>
 </body>

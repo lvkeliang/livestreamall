@@ -2,8 +2,10 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"livestreamall/config"
 	"livestreamall/model"
 	"livestreamall/service"
 	"livestreamall/util"
@@ -81,7 +83,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
 			//util.RespDidNotLogin(c)
-			c.Redirect(http.StatusFound, "http://47.92.137.133:9089/user/login")
+			c.Redirect(http.StatusFound, fmt.Sprintf("http://%s:%d/user/login", config.App.Host, config.App.Port))
 			c.Abort()
 			return
 		}
@@ -91,7 +93,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 		if err != nil {
 			//util.RespInvalidToken(c)
-			c.Redirect(http.StatusFound, "http://47.92.137.133:9089/user/login")
+			c.Redirect(http.StatusFound, fmt.Sprintf("http://%s:%d/user/login", config.App.Host, config.App.Port))
 			c.Abort()
 			return
 		}
@@ -100,7 +102,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Set("token", tokenString)
 		} else {
 			//util.RespInvalidToken(c)
-			c.Redirect(http.StatusFound, "http://47.92.137.133:9089/user/login")
+			c.Redirect(http.StatusFound, fmt.Sprintf("http://%s:%d/user/login", config.App.Host, config.App.Port))
 			c.Abort()
 			return
 		}

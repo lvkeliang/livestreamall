@@ -6,13 +6,15 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"livestreamall/config"
 	"livestreamall/dao"
 	"livestreamall/model"
 	"net/http"
 	"time"
 )
 
-func GetStreamURL(c *gin.Context) {
+// GetPullStreamURL 获取拉流相关地址
+func GetPullStreamURL(c *gin.Context) {
 	// 从请求中获取参数
 	streamName := c.Param("stream_name")
 
@@ -31,13 +33,16 @@ func GetStreamURL(c *gin.Context) {
 	}
 
 	// 动态生成拉流地址
-	hlsURL := "http://47.92.137.133:8080/hls/" + streamName + ".m3u8"
-	dashURL := "http://47.92.137.133:8080/dash/" + streamName + ".mpd"
+	// 动态生成拉流和推流地址
+	hlsURL := fmt.Sprintf("%s/hls/%s.m3u8", config.Stream.PullBaseURL, streamName)
+	dashURL := fmt.Sprintf("%s/dash/%s.mpd", config.Stream.PullBaseURL, streamName)
+	playURL := fmt.Sprintf("http://%s:%d/live/play?stream_id=%s", config.App.Host, config.App.Port, streamName)
 
 	// 返回拉流地址
 	c.JSON(http.StatusOK, gin.H{
 		"hls_url":  hlsURL,
 		"dash_url": dashURL,
+		"play_url": playURL,
 	})
 }
 
@@ -128,6 +133,7 @@ func StartLive(c *gin.Context) {
 		// 返回结果
 		c.JSON(http.StatusOK, gin.H{
 			"stream_name": userID,
+			"push_url":    config.Stream.PushBaseURL,
 			"token":       token,
 			"user_id":     userID,
 		})

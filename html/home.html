@@ -103,7 +103,7 @@
   <!-- Buttons Section -->
   <div class="user-buttons">
     <div class="auth-buttons">
-      <button id="login-btn" onclick="window.location.href='http://47.92.137.133:9089/user/login'">登录</button>
+      <button id="login-btn" onclick="window.location.href=`${baseURL}/user/login`">登录</button>
       <button id="logout-btn" style="display: none;" onclick="logout()">注销</button>
     </div>
     <div class="start-live-button">
@@ -117,10 +117,13 @@
 </div>
 
 <script>
+  // 获取当前页面的协议、主机名和端口，生成动态的 API 基础 URL
+  const baseURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+  
   async function fetchLiveRooms() {
     const token = localStorage.getItem('token');
 
-    const response = await fetch('http://47.92.137.133:9089/live/live_rooms', {
+    const response = await fetch(`${baseURL}/live/live_rooms`, {
       method: 'GET',
       headers: { 'Authorization': `${token}` }
     });
@@ -142,7 +145,7 @@
       roomCard.innerHTML = `
         <h3>${room.Title}</h3>
         <p>${room.Description}</p>
-        <button onclick="window.location.href='http://47.92.137.133:9089/live/play?stream_id=${room.StreamName}'">观看</button>
+        <button onclick="window.location.href='${baseURL}/live/play?stream_id=${room.StreamName}'">观看</button>
       `;
       liveRoomsContainer.appendChild(roomCard);
     });
@@ -167,7 +170,7 @@
   }
 
   async function fetchUserInfo(token) {
-    const response = await fetch('http://47.92.137.133:9089/user/info', {
+    const response = await fetch(`${baseURL}/user/info`, {
       method: 'GET',
       headers: { 'Authorization': `${token}` }
     });
@@ -185,10 +188,10 @@
     const token = localStorage.getItem('token');
     if (!token) {
       alert('Please login first.');
-      window.location.href = 'http://47.92.137.133:9089/user/login';
+      window.location.href = `${baseURL}/user/login`;
       return;
     }
-    window.location.href = 'http://47.92.137.133:9089/live/start';
+    window.location.href = `${baseURL}/live/start`;
   }
 
   function logout() {

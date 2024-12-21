@@ -85,27 +85,27 @@
 </div>
 
 <script>
+  const baseURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+
   const backendApi = {
-    startLive: "http://47.92.137.133:9089/live/start"  // 新接口，用于生成推流密钥
+    startLive: `${baseURL}/live/start`,       // 接口：生成推流密钥
+    streamInfo: (streamName) => `${baseURL}/stream/${streamName}` // 接口：获取拉流信息
   };
 
   // Utility function to make authenticated fetch requests
   async function authenticatedFetch(url, options = {}) {
-    // Get token from localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       alert("You are not logged in. Please login first.");
       throw new Error("No token found in localStorage");
     }
 
-    // Add Authorization header
     const headers = {
       ...options.headers,
       "Authorization": `${token}`,
       "Content-Type": "application/json"
     };
 
-    // Perform fetch with the updated headers
     const response = await fetch(url, {
       ...options,
       headers
@@ -146,29 +146,33 @@
       }
 
       const publishData = await publishResponse.json();
-      const streamName = publishData.stream_name;
-      const userId = publishData.user_id;
+      const pushStreamUrl = publishData.push_url;
       const token = publishData.token;
 
-      const pushStreamUrl = `rtmp://47.92.137.133/live`;
+      // 显示推流地址和密钥
       pushUrlElem.textContent = pushStreamUrl;
       streamKeyElem.textContent = token;
 
-      // Step 2: 拼接HLS和DASH流地址
-      const hlsUrl = `http://47.92.137.133:8080/hls/${token}.m3u8`;
-      const dashUrl = `http://47.92.137.133:8080/dash/${token}.mpd`;
+      // Step 2: 请求后端获取拉流信息
+      const streamInfoResponse = await authenticatedFetch(backendApi.streamInfo(token));
+      if (!streamInfoResponse.ok) {
+        alert("Failed to fetch stream info: " + (await streamInfoResponse.text()));
+        return;
+      }
 
-      const playUrl = `http://47.92.137.133:9089/live/play?stream_id=${token}`
+      const streamData = await streamInfoResponse.json();
 
-      hlsUrlElem.textContent = hlsUrl;
-      dashUrlElem.textContent = dashUrl;
-      playUrlElem.textContent = playUrl;
+      // 展示拉流信息
+      hlsUrlElem.textContent = streamData.hls_url;
+      dashUrlElem.textContent = streamData.dash_url;
+      playUrlElem.textContent = streamData.play_url;
 
       streamInfo.style.display = "block";
     } catch (error) {
       console.error("Error:", error);
     }
   });
+
 </script>
 </body>
 </html>

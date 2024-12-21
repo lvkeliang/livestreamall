@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录/注册界面</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="login">
+                <form id="login-form">
+                    <h2>登录</h2>
+                    <div class="form-group">
+                        <label for="login-mail">邮箱：</label>
+                        <input type="text" id="login-mail" placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">密码：</label>
+                        <input type="password" id="login-password" placeholder="请输入密码">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" id="login-submit" value="登录">
+                    </div>
+                </form>
+            </div>
+            <div class="register">
+                <form id="register-form">
+                    <h2>注册</h2>
+                    <div class="form-group">
+                        <label for="register-nickname">昵称：</label>
+                        <input type="text" id="register-nickname" placeholder="请输入昵称">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-mail">邮箱：</label>
+                        <input type="text" id="register-mail" placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">密码：</label>
+                        <input type="password" id="register-password" placeholder="请输入密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">确认密码：</label>
+                        <input type="password" id="register-password-confirm" placeholder="请再次输入密码">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" id="register-submit" value="注册">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="form-group">
+            <a id="switch-form" href="javascript:void(0);">注册/登录</a>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../static/js/login.js"></script>
+</body>
+</html>

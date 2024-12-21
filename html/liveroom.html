@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS 拉流播放器</title>
+    <!-- 引入 Video.js 样式 -->
+    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .player-container {
+            width: 80%;
+            max-width: 1200px; /* 限制最大宽度 */
+            height: 70%; /* 调整容器高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-js {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9; /* 设置16:9的比例 */
+        }
+    </style>
+</head>
+<body>
+<div class="player-container">
+    <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto">
+        <source src="" type="application/x-mpegURL">
+        您的浏览器不支持 HTML5 视频播放。
+    </video>
+</div>
+
+<!-- 引入 Video.js 库 -->
+<script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
+<script>
+    // 初始化播放器
+    const player = videojs('hls-player');
+
+    // 获取 URL 参数
+    function getURLParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // 获取流 ID 参数并构建流地址
+    const streamId = getURLParameter('stream_id');  // 假设 URL 中有 stream_id 参数
+
+    if (streamId) {
+        // 拼接 HLS 流地址
+        const hlsUrl = `http://47.92.137.133:8080/hls/${streamId}.m3u8`;
+        // 设置播放器源
+        player.src({
+            src: hlsUrl,
+            type: 'application/x-mpegURL',
+        });
+        player.play();
+    } else {
+        alert("缺少流 ID 或用户 ID 参数！");
+    }
+</script>
+</body>
+</html>

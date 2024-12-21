@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>直播平台主页</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      margin-top: 80px; /* Match the height of the fixed header */
+    }
+
+    /* Fixed Header Section */
+    .auth-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #007bff;
+      padding: 10px 20px;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-section .user-info {
+      color: white;
+      margin-right: 20px;
+    }
+
+    .auth-section .user-buttons {
+      display: flex;
+      gap: 10px;
+      margin-left: auto; /* Ensure buttons stay on the right */
+      margin-right: 30px; /* 与页面右侧保持一定距离 */
+    }
+
+    .auth-buttons button, #start-live-btn {
+      background-color: #fff;
+      color: #007bff;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .auth-buttons button:hover, #start-live-btn:hover {
+      background-color: #e6e6e6;
+      color: #0056b3;
+    }
+
+    .live-rooms {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .room-card {
+      width: 250px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .room-card h3 {
+      margin-top: 0;
+    }
+
+    .room-card button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .room-card button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+<div class="auth-section">
+  <!-- User Info Section -->
+  <div class="user-info" id="user-info" style="display: none;">
+    <span id="user-name"></span>
+  </div>
+
+  <!-- Buttons Section -->
+  <div class="user-buttons">
+    <div class="auth-buttons">
+      <button id="login-btn" onclick="window.location.href='http://47.92.137.133:9089/user/login'">登录</button>
+      <button id="logout-btn" style="display: none;" onclick="logout()">注销</button>
+    </div>
+    <div class="start-live-button">
+      <button id="start-live-btn" onclick="startLive()">我要直播</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div id="live-rooms" class="live-rooms"></div>
+</div>
+
+<script>
+  async function fetchLiveRooms() {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch('http://47.92.137.133:9089/live/live_rooms', {
+      method: 'GET',
+      headers: { 'Authorization': `${token}` }
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch live rooms');
+      return;
+    }
+
+    const data = await response.json();
+    const liveRooms = data.live_rooms;
+
+    const liveRoomsContainer = document.getElementById('live-rooms');
+    liveRoomsContainer.innerHTML = '';
+
+    liveRooms.forEach(room => {
+      const roomCard = document.createElement('div');
+      roomCard.className = 'room-card';
+      roomCard.innerHTML = `
+        <h3>${room.Title}</h3>
+        <p>${room.Description}</p>
+        <button onclick="window.location.href='http://47.92.137.133:9089/live/play?stream_id=${room.StreamName}'">观看</button>
+      `;
+      liveRoomsContainer.appendChild(roomCard);
+    });
+  }
+
+  function handleAuthState() {
+    const token = localStorage.getItem('token');
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userInfo = document.getElementById('user-info');
+
+    if (token) {
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      userInfo.style.display = 'inline-block';
+      fetchUserInfo(token);
+    } else {
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      userInfo.style.display = 'none';
+    }
+  }
+
+  async function fetchUserInfo(token) {
+    const response = await fetch('http://47.92.137.133:9089/user/info', {
+      method: 'GET',
+      headers: { 'Authorization': `${token}` }
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch user info');
+      return;
+    }
+
+    const data = await response.json();
+    document.getElementById('user-name').textContent = `Hello, ${data.user.nickname}`;
+  }
+
+  async function startLive() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please login first.');
+      window.location.href = 'http://47.92.137.133:9089/user/login';
+      return;
+    }
+    window.location.href = 'http://47.92.137.133:9089/live/start';
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    handleAuthState();
+    window.location.reload();
+  }
+
+  window.onload = () => {
+    handleAuthState();
+    fetchLiveRooms();
+  };
+</script>
+</body>
+</html>

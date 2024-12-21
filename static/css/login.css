@@ -1,0 +1,106 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+}
+
+/* Card styling */
+.login, .register {
+    width: 400px;
+    height: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 10px;
+    box-shadow: 0px 10px 20px #999;
+    background-color: white;
+    padding: 20px;
+    padding-top: 60px; /* 为标题腾出空间 */
+    backface-visibility: hidden;
+    transition: transform 0.8s ease;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+/* 固定 h2 标题在卡片顶部 */
+.login h2, .register h2 {
+    position: absolute;
+    top: 55px; /* 距离卡片顶部 20px */
+    left: 50%;
+    transform: translateX(-50%); /* 水平居中 */
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+}
+/* Form styling */
+form {
+    width: 90%; /* 让表单占满卡片宽度 */
+    padding: 40px;; /* 控制左右内边距 */
+    backface-visibility: hidden;
+}
+
+.login {
+
+transform: translate(-50%, -50%);
+}
+
+.register {
+    transform: translate(-50%, -50%) rotateY(180deg);
+
+}
+
+/* Form group styling */
+.form-group {
+    margin-bottom: 20px;
+    backface-visibility: hidden;
+}
+
+/* Input styling */
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    backface-visibility: hidden;
+}
+
+/* Button styling */
+input[type="button"] {
+    width: 100%;
+    background-color: #007BFF;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    backface-visibility: hidden;
+}
+
+input[type="button"]:hover {
+    background-color: #0056b3;
+}
+
+/* Switch form link styling */
+#switch-form {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* Flip the card */
+
+.login.flip {
+    transform: translate(-50%, -50%) rotateY(180deg);
+}
+.register.flip {
+    transform: translate(-50%, -50%) rotateY(360deg);
+}

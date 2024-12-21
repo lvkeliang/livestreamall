@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开始你的直播</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .info-box {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #007BFF;
+      border-radius: 4px;
+      background-color: #e8f0fe;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>开始你的直播</h2>
+
+  <!-- Input form for live room details -->
+  <form id="liveForm">
+    <label for="title">直播间标题:</label>
+    <input type="text" id="title" name="title" required placeholder="输入标题">
+
+    <label for="description">直播间简介:</label>
+    <textarea id="description" name="description" rows="4" placeholder="输入简介"></textarea>
+
+    <button type="submit">获取串流密钥</button>
+  </form>
+
+  <!-- Display streaming information -->
+  <div id="streamInfo" class="info-box" style="display: none;">
+    <h3>详细流信息</h3>
+    <p><strong>推流地址:</strong> <span id="pushUrl"></span></p>
+    <p><strong>串流密钥:</strong> <span id="streamKey"></span></p>
+    <p><strong>HLS拉流地址:</strong> <span id="hlsUrl"></span></p>
+    <p><strong>DASH拉流地址:</strong> <span id="dashUrl"></span></p>
+    <p><strong>观看地址:</strong> <span id="playUrl"></span></p>
+  </div>
+</div>
+
+<script>
+  const backendApi = {
+    startLive: "http://47.92.137.133:9089/live/start"  // 新接口，用于生成推流密钥
+  };
+
+  // Utility function to make authenticated fetch requests
+  async function authenticatedFetch(url, options = {}) {
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You are not logged in. Please login first.");
+      throw new Error("No token found in localStorage");
+    }
+
+    // Add Authorization header
+    const headers = {
+      ...options.headers,
+      "Authorization": `${token}`,
+      "Content-Type": "application/json"
+    };
+
+    // Perform fetch with the updated headers
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+
+    if (response.status === 401) {
+      alert("Your session has expired. Please login again.");
+      throw new Error("Unauthorized");
+    }
+
+    return response;
+  }
+
+  const liveForm = document.getElementById("liveForm");
+  const streamInfo = document.getElementById("streamInfo");
+  const pushUrlElem = document.getElementById("pushUrl");
+  const streamKeyElem = document.getElementById("streamKey");
+  const hlsUrlElem = document.getElementById("hlsUrl");
+  const dashUrlElem = document.getElementById("dashUrl");
+  const playUrlElem = document.getElementById("playUrl");
+
+  liveForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+
+    try {
+      // Step 1: 请求后端生成推流密钥和流名称
+      const publishResponse = await authenticatedFetch(backendApi.startLive, {
+        method: "POST",
+        body: JSON.stringify({ title, description })
+      });
+
+      if (!publishResponse.ok) {
+        alert("Failed to generate stream key: " + (await publishResponse.text()));
+        return;
+      }
+
+      const publishData = await publishResponse.json();
+      const streamName = publishData.stream_name;
+      const userId = publishData.user_id;
+      const token = publishData.token;
+
+      const pushStreamUrl = `rtmp://47.92.137.133/live`;
+      pushUrlElem.textContent = pushStreamUrl;
+      streamKeyElem.textContent = token;
+
+      // Step 2: 拼接HLS和DASH流地址
+      const hlsUrl = `http://47.92.137.133:8080/hls/${token}.m3u8`;
+      const dashUrl = `http://47.92.137.133:8080/dash/${token}.mpd`;
+
+      const playUrl = `http://47.92.137.133:9089/live/play?stream_id=${token}`
+
+      hlsUrlElem.textContent = hlsUrl;
+      dashUrlElem.textContent = dashUrl;
+      playUrlElem.textContent = playUrl;
+
+      streamInfo.style.display = "block";
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
+</script>
+</body>
+</html>

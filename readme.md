@@ -248,7 +248,10 @@ http {
 为 HLS 配置创建目录，用于存放 HLS 切片文件：
 ```bash
 sudo mkdir -p /mnt/hls
+sudo mkdir -p /mnt/dash
+
 sudo chmod -R 777 /mnt/hls
+sudo chmod -R 777 /mnt/dash
 ```
 
 #### **6. 启动 Nginx**

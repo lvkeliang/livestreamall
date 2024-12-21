@@ -116,6 +116,7 @@ func StartLive(c *gin.Context) {
 		// 返回结果
 		c.JSON(http.StatusOK, gin.H{
 			"stream_name": userID,
+			"push_url":    config.Stream.PushBaseURL,
 			"token":       token,
 			"user_id":     userID,
 		})

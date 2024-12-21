@@ -1,7 +1,3 @@
-以下是更新后的README文档，其中包含Nginx部署步骤：
-
----
-
 # **直播平台 API 使用说明**
 
 本项目提供了一套基于直播功能的后端服务接口，包含用户注册、登录、直播间管理、推流认证以及流媒体相关功能。此文档旨在帮助开发者了解如何使用该系统提供的API接口。
@@ -285,11 +281,20 @@ netstat -tuln | grep 1935
    go mod tidy
    ```
    
-2. **配置数据库连接**：
+3. **配置数据库连接**：
 
    请将本项目下的 `./dao/dao.go` 中的 `InitDB` 函数中的 `dsn` 变量替换为你自己的MySQL连接字符串
+   
+4. **配置IP设置**：
 
-3. **运行项目**：
+   请将本项目下的 `./config/config.go` 中的IP地址按照你个人的IP进行配置。
+   
+   - `YOUR_IP_ADDRESS` 是该项目运行机器的IP
+   - `YOUR_STREAM_IP_ADDRESS` 是你的Nginx流服务器运行机器的IP
+   
+   如果你的Nginx和项目都运行在同一机器，则YOUR_IP_ADDRESS和YOUR_STREAM_IP_ADDRESS都使用本机的IP。
+
+5. **运行项目**：
    
    ```bash
    go run main.go
@@ -313,6 +318,7 @@ netstat -tuln | grep 1935
 | `/live/start`        | GET          | 访问开始直播页面           |
 | `/live/start`        | POST         | 开始直播，返回推流地址和密钥 |
 | `/live/live_rooms`   | GET          | 获取直播间列表               |
+| `/stream/{stream_name}` | GET | 获取拉流相关地址 |
 | `rtmp://{流服务器地址}/live` | POST | 推流地址 |
 | `http://{流服务器地址}/hls/{流名称}.m3u8`   | GET | 拉流地址 |
 

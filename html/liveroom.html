@@ -37,7 +37,7 @@
 </head>
 <body>
 <div class="player-container">
-    <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto">
+    <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto" autoplay muted playsinline>
         您的浏览器不支持 HTML5 视频播放。
     </video>
 </div>
@@ -45,8 +45,12 @@
 <!-- 引入 Video.js 库 -->
 <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
 <script>
-    // 初始化播放器
-    const player = videojs('hls-player');
+    // 初始化播放器并启用自动播放
+    const player = videojs('hls-player', {
+        autoplay: true, // 启用自动播放
+        muted: true,    // 静音，避免浏览器阻止自动播放
+        playsinline: true, // 在移动设备上支持行内播放
+    });
 
     // 获取 URL 参数
     function getURLParameter(name) {

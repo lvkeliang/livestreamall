@@ -35,16 +35,17 @@ func InitRouter() {
 	live := r.Group("/live")
 	{
 
-		live.GET("/play", Liveroom)                      // 观看直播页
-		live.GET("/start", StartLivePage)                // 开始直播页
-		live.POST("/start", AuthMiddleware(), StartLive) // 开始直播,获取推流地址,获取推流密钥
-		live.GET("/live_rooms", GetLiveRooms)            // 获取直播间列表
-		live.GET("/live-room/:stream_name", GetLiveRoomByStreamName)
-		live.GET("/ws/:stream_name", HandleConnections)
+		live.GET("/play", Liveroom)                                  // 观看直播页
+		live.GET("/start", StartLivePage)                            // 开始直播页
+		live.POST("/start", AuthMiddleware(), StartLive)             // 开始直播,获取推流地址,获取推流密钥
+		live.GET("/live_rooms", GetLiveRooms)                        // 获取直播间列表及其信息
+		live.GET("/live-room/:stream_name", GetLiveRoomByStreamName) // 获取直播间信息
+		live.GET("/ws/:stream_name", HandleConnections)              // WebSocket 连接处理
 
-		// 启动消息处理协程
-		go HandleMessages()
 	}
+
+	// 启动消息处理协程
+	go HandleMessages()
 
 	r.Run(fmt.Sprintf(":%d", config.App.Port))
 }

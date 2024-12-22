@@ -17,6 +17,8 @@
 | `/live/start`        | GET          | 访问开始直播页面           |
 | `/live/start`        | POST         | 开始直播，返回推流地址和密钥 |
 | `/live/live_rooms`   | GET          | 获取直播间列表               |
+| `/live/live-room/{stream_name}`   | GET | 获取直播间信息 |
+| `ws://{服务器地址}/live/ws/{stream_name}`   | GET | 聊天室收发 |
 | `/stream/{stream_name}` | GET | 获取拉流相关地址 |
 | `rtmp://{流服务器地址}/live` | POST | 推流地址 |
 | `http://{流服务器地址}/hls/{流名称}.m3u8`   | GET | 拉流地址 |
@@ -292,6 +294,128 @@
     ]
 }
 ```
+
+---
+
+
+
+### **6.5 获取直播间信息**
+
+**GET `/live/live-room/{stream_name}`**
+
+- 描述：根据推流名称获取指定直播间的信息。
+
+| **参数名称** | **类型** | **必填** | **描述** |
+| ------------ | -------- | -------- | -------- |
+| `stream-name`       | url参数        | 是        | 流名称        |
+
+- 请求示例
+
+**URL**: `/live/live-room/example-stream`
+
+- 响应示例
+
+成功响应:
+
+```json
+{
+    "id": 1,
+    "title": "Example Live Stream",
+    "description": "This is an example live stream description.",
+    "is_live": true
+}
+```
+
+失败响应:
+
+**404 Not Found**
+
+```json
+{
+    "error": "live room not found"
+}
+```
+
+**400 Bad Request**
+
+```json
+{
+    "error": "stream_name parameter is required"
+}
+```
+
+---
+
+### **6.6 WebSocket 连接处理**
+
+**GET `/live/ws/{stream_name}`**
+
+- 描述：处理针对指定直播间的WebSocket连接，允许用户实时发送和接收消息。
+
+- 请求示例
+
+**URL**: `/live/ws/example-stream`
+
+- 响应示例
+
+成功连接：
+
+*此请求不会返回传统的JSON响应，而是建立WebSocket连接。连接成功后，客户端可以发送消息。*
+
+- **发送的消息示例**：
+
+```json
+{
+    "token": "your-auth-token",
+    "Content": "Hello, World!"
+}
+```
+
+失败响应:
+
+**400 Bad Request**
+
+```json
+{
+    "error": "Missing stream_name"
+}
+```
+
+**404 Not Found**
+
+```json
+{
+    "error": "live room not found"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+    "error": "WebSocket upgrade failed"
+}
+```
+
+- **接收消息示例**：
+
+```json
+{
+    "liveRoomID": 18,
+    "username": "消息发布者昵称",
+    "content": "消息内容"
+}
+```
+
+---
+
+### 详细说明
+
+1. **获取直播间信息**：`GET /live/live-room/:stream_name` 允许客户端根据推流名称查询直播间的详细信息，例如标题、简介和在线状态。这对于查看某个直播间的基本信息非常有用。
+
+2. **WebSocket 连接处理**：`GET /live/ws/:stream_name` 将建立与指定直播间的WebSocket连接，用户可以通过这个连接发送消息并接收实时更新。 
+
+希望这两个API文档符合您的要求，如果需要进一步修改或者添加更多细节，请告诉我！
 
 ---
 

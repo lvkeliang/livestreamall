@@ -321,6 +321,8 @@ netstat -tuln | grep 1935
 | `/live/start`        | GET          | 访问开始直播页面           |
 | `/live/start`        | POST         | 开始直播，返回推流地址和密钥 |
 | `/live/live_rooms`   | GET          | 获取直播间列表               |
+| `/live/live-room/{stream_name}`   | GET | 获取直播间信息 |
+| `ws://{服务器地址}/live/ws/{stream_name}`   | GET | 聊天室收发 |
 | `/stream/{stream_name}` | GET | 获取拉流相关地址 |
 | `rtmp://{流服务器地址}/live` | POST | 推流地址 |
 | `http://{流服务器地址}/hls/{流名称}.m3u8`   | GET | 拉流地址 |

@@ -264,16 +264,29 @@
     });
 
     function adjustChatSectionHeight() {
+        const windowWidth = window.innerWidth; // 窗口内部宽度
         const videoElement = document.querySelector('.video-js');
         const chatSection = document.querySelector('.chat-section');
 
-        if (!document.fullscreenElement && videoElement && chatSection) {
-            // 获取video-js的实际高度
+        if (windowWidth < 768) {
+            const windowHeight = window.innerHeight;
             const videoHeight = videoElement.clientHeight;
-            // 将chat-section的最大高度设置为video-js的高度
-            chatSection.style.maxHeight = `${videoHeight}px`;
-            chatSection.style.minHeight = `${videoHeight}px`;
+
+            console.log("windowHeight: ", windowHeight)
+            console.log("videoHeight: ", videoHeight)
+            chatSection.style.maxHeight = `${windowHeight - videoHeight - 145}px`;
+            chatSection.style.minHeight = `${windowHeight - videoHeight - 145}px`;
         }
+        else {
+            if (!document.fullscreenElement && videoElement && chatSection) {
+                // 获取video-js的实际高度
+                const videoHeight = videoElement.clientHeight;
+                // 将chat-section的最大高度设置为video-js的高度
+                chatSection.style.maxHeight = `${videoHeight}px`;
+                chatSection.style.minHeight = `${videoHeight}px`;
+            }
+        }
+
     }
 
     // 窗口改变大小事件监听器

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"livestreamall/config"
 	"livestreamall/dao"
 	"livestreamall/model"
@@ -74,6 +75,36 @@ func GetLiveRooms(c *gin.Context) {
 	// 返回直播间列表
 	c.JSON(http.StatusOK, gin.H{
 		"live_rooms": liveRooms,
+	})
+}
+
+func GetLiveRoomByStreamName(c *gin.Context) {
+	// 获取 URL 参数中的 StreamName
+	streamName := c.Param("stream_name")
+
+	// 检查参数是否存在
+	if streamName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "stream_name parameter is required"})
+		return
+	}
+
+	// 查询数据库，查找对应的直播间信息
+	var liveRoom model.LiveRoom
+	if err := dao.DB.Where("stream_name = ?", streamName).First(&liveRoom).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "live room not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch live room"})
+		}
+		return
+	}
+
+	// 返回直播间数据
+	c.JSON(http.StatusOK, gin.H{
+		"id":          liveRoom.ID,
+		"title":       liveRoom.Title,
+		"description": liveRoom.Description,
+		"is_live":     liveRoom.IsLive,
 	})
 }
 

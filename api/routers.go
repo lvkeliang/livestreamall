@@ -39,6 +39,7 @@ func InitRouter() {
 		live.GET("/start", StartLivePage)                // 开始直播页
 		live.POST("/start", AuthMiddleware(), StartLive) // 开始直播,获取推流地址,获取推流密钥
 		live.GET("/live_rooms", GetLiveRooms)            // 获取直播间列表
+		live.GET("/live-room/:stream_name", GetLiveRoomByStreamName)
 	}
 
 	r.Run(fmt.Sprintf(":%d", config.App.Port))

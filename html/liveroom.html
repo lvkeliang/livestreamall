@@ -7,36 +7,89 @@
     <!-- 引入 Video.js 样式 -->
     <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
     <style>
+        /* 通用样式 */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             flex-direction: column;
         }
 
+        /* 播放器容器样式 */
         .player-container {
-            width: 80%;
-            max-width: 1200px; /* 限制最大宽度 */
-            height: 70%; /* 调整容器高度 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            width: 90%;
+            max-width: 900px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
         }
 
+        /* 标题样式 */
+        .player-container h1 {
+            font-size: 1.8rem;
+            margin: 0 0 10px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        /* 描述样式 */
+        .player-container p {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin: 0 0 20px;
+            text-align: center;
+        }
+
+        /* 播放器样式 */
         .video-js {
             width: 100%;
             height: auto;
-            aspect-ratio: 16 / 9; /* 设置16:9的比例 */
+            border-radius: 8px;
+            aspect-ratio: 16 / 9;
+        }
+
+        /* 响应式样式 */
+        @media (max-width: 768px) {
+            .player-container {
+                padding: 15px;
+            }
+
+            .player-container h1 {
+                font-size: 1.5rem;
+            }
+
+            .player-container p {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .player-container h1 {
+                font-size: 1.2rem;
+            }
+
+            .player-container p {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="player-container">
+    <!-- 直播间标题 -->
+    <h1 id="live-title">加载中...</h1>
+    <!-- 直播间描述 -->
+    <p id="live-description">正在加载直播间信息，请稍候。</p>
+    <!-- HLS 播放器 -->
     <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto" autoplay muted playsinline>
         您的浏览器不支持 HTML5 视频播放。
     </video>
@@ -45,13 +98,6 @@
 <!-- 引入 Video.js 库 -->
 <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
 <script>
-    // 初始化播放器并启用自动播放
-    const player = videojs('hls-player', {
-        autoplay: true, // 启用自动播放
-        muted: true,    // 静音，避免浏览器阻止自动播放
-        playsinline: true, // 在移动设备上支持行内播放
-    });
-
     // 获取 URL 参数
     function getURLParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -59,14 +105,27 @@
     }
 
     // 获取流 ID 参数
-    const streamId = getURLParameter('stream_id');  // 假设 URL 中有 stream_id 参数
+    const streamId = getURLParameter('stream_id');
 
     if (streamId) {
-        // 构建后端接口 URL
-        const apiUrl = `${window.location.origin}/stream/${streamId}`;
+        // 获取直播间信息
+        const liveRoomApiUrl = `${window.location.origin}/live/live-room/${streamId}`;
+        fetch(liveRoomApiUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch live room info: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // 更新标题和描述
+                document.getElementById('live-title').textContent = data.title || "直播间";
+                document.getElementById('live-description').textContent = data.description || "暂无描述";
 
-        // 动态请求后端接口获取 HLS 地址
-        fetch(apiUrl)
+                // 获取 HLS 地址
+                const streamApiUrl = `${window.location.origin}/stream/${streamId}`;
+                return fetch(streamApiUrl);
+            })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Failed to fetch stream info: ${response.statusText}`);
@@ -74,9 +133,16 @@
                 return response.json();
             })
             .then((data) => {
-                // 设置播放器源
                 const hlsUrl = data.hls_url;
                 if (hlsUrl) {
+                    // 初始化 Video.js 播放器
+                    const player = videojs('hls-player', {
+                        autoplay: true,
+                        muted: true,
+                        playsinline: true,
+                    });
+
+                    // 设置播放器源
                     player.src({
                         src: hlsUrl,
                         type: 'application/x-mpegURL',
@@ -87,8 +153,8 @@
                 }
             })
             .catch((error) => {
-                console.error("Error fetching stream info:", error);
-                alert("获取流信息失败，请稍后重试！");
+                console.error("Error fetching data:", error);
+                alert("加载直播间信息或流地址失败，请稍后重试！");
             });
     } else {
         alert("缺少流 ID 参数！");

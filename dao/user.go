@@ -34,7 +34,7 @@ func SearchUser(attribute string, value string) (user model.User, err error) {
 // SearchUserPassword 用于按照具有唯一性的字段来查找用户密码
 // attributes: 用于查找user的字段,该字段必须有唯一性[uid,mail,nickname]
 // value：字段的值
-func SearchUserPassword(attribute string, value string) (uID string, password string, err error) {
+func SearchUserPassword(attribute string, value string) (uID string, Nickname string, password string, err error) {
 	var user model.User
 
 	query := DB.Model(&model.User{})
@@ -46,15 +46,15 @@ func SearchUserPassword(attribute string, value string) (uID string, password st
 	case "nickname":
 		query = query.Where("nickname = ?", value)
 	default:
-		return "", "", util.FieldsError
+		return "", "", "", util.FieldsError
 	}
 
-	err = query.Select("id", "password").First(&user).Error
+	err = query.Select("id", "nickname", "password").First(&user).Error
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	return strconv.Itoa(int(user.ID)), user.Password, nil
+	return strconv.Itoa(int(user.ID)), user.Nickname, user.Password, nil
 }
 
 func CreateUser(user model.User) (err error) {

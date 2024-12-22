@@ -96,7 +96,7 @@
   async function authenticatedFetch(url, options = {}) {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("You are not logged in. Please login first.");
+      alert("你还未登录, 请先登录!");
       throw new Error("No token found in localStorage");
     }
 
@@ -112,7 +112,7 @@
     });
 
     if (response.status === 401) {
-      alert("Your session has expired. Please login again.");
+      alert("你的登录已经过期, 请再次登录!");
       throw new Error("Unauthorized");
     }
 
@@ -141,7 +141,7 @@
       });
 
       if (!publishResponse.ok) {
-        alert("Failed to generate stream key: " + (await publishResponse.text()));
+        alert("获取串流密钥失败: " + (await publishResponse.text()));
         return;
       }
 
@@ -156,7 +156,7 @@
       // Step 2: 请求后端获取拉流信息
       const streamInfoResponse = await authenticatedFetch(backendApi.streamInfo(token));
       if (!streamInfoResponse.ok) {
-        alert("Failed to fetch stream info: " + (await streamInfoResponse.text()));
+        alert("获取流信息失败: " + (await streamInfoResponse.text()));
         return;
       }
 

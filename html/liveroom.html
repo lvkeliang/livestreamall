@@ -3,162 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS 拉流播放器</title>
-    <!-- 引入 Video.js 样式 -->
+    <title>直播间</title>
     <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
     <style>
-        /* 通用样式 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
-            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column;
         }
 
-        /* 播放器容器样式 */
-        .player-container {
-            width: 90%;
-            max-width: 900px;
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            text-align: center;
             padding: 20px;
         }
 
-        /* 标题样式 */
-        .player-container h1 {
-            font-size: 1.8rem;
-            margin: 0 0 10px;
-            color: #2c3e50;
-            text-align: center;
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* 描述样式 */
-        .player-container p {
+        .title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .description {
             font-size: 1rem;
             color: #7f8c8d;
-            margin: 0 0 20px;
-            text-align: center;
+            margin: 0 0 10px;
         }
 
-        /* 播放器样式 */
+        .player-message-container {
+            display: flex;
+            align-items: stretch; /* 确保子元素高度一致 */
+            gap: 20px;
+        }
+
         .video-js {
-            width: 100%;
-            height: auto;
+            flex: 3; /* 播放器占3份 */
+            height: auto; /* 高度自动调整 */
+            aspect-ratio: 16 / 9; /* 确保比例 */
+        }
+
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
             border-radius: 8px;
-            aspect-ratio: 16 / 9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        /* 响应式样式 */
+        .chat-header {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .chat-input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .chat-input {
+            flex-grow: 1; /* 使输入框填充剩余空间 */
+            flex-shrink: 1; /* 允许输入框在空间不足时缩小 */
+            max-width: calc(100% - 100px); /* 设置输入框的最大宽度，避免按钮被挤出 */
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 0 0 0 8px;
+            outline: none;
+        }
+
+        .chat-send {
+            flex-shrink: 0; /* 使按钮不缩小 */
+            width: 80px; /* 给按钮设置固定宽度 */
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 0 0 8px 0;
+            white-space: nowrap; /* 防止按钮文字换行 */
+        }
+
+        .chat-send:hover {
+            background-color: #0056b3;
+        }
+
         @media (max-width: 768px) {
-            .player-container {
-                padding: 15px;
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                height: 100vh;
             }
 
-            .player-container h1 {
-                font-size: 1.5rem;
+            .player-message-container {
+                flex-direction: column;
             }
 
-            .player-container p {
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .player-container h1 {
-                font-size: 1.2rem;
+            .video-js {
+                width: 100%;
             }
 
-            .player-container p {
-                font-size: 0.8rem;
+            .chat-section {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-<div class="player-container">
-    <!-- 直播间标题 -->
-    <h1 id="live-title">加载中...</h1>
-    <!-- 直播间描述 -->
-    <p id="live-description">正在加载直播间信息，请稍候。</p>
-    <!-- HLS 播放器 -->
-    <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto" autoplay muted playsinline>
-        您的浏览器不支持 HTML5 视频播放。
-    </video>
+<div class="main-container">
+    <div class="player-section">
+        <h1 id="live-title" class="title">加载中...</h1>
+        <p id="live-description" class="description">正在加载直播间信息，请稍候。</p>
+        <div class="player-message-container">
+            <video id="hls-player" class="video-js vjs-default-skin" controls preload="auto" autoplay muted playsinline>
+                您的浏览器不支持 HTML5 视频播放。
+            </video>
+            <div class="chat-section">
+                <div class="chat-header" id="user-name">聊天室</div>
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input id="chat-input" class="chat-input" type="text" placeholder="输入消息...">
+                    <button id="chat-send" class="chat-send">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- 引入 Video.js 库 -->
 <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
 <script>
+    const baseURL = `${window.location.origin}`; // 设置后端接口基础 URL
+    const token = localStorage.getItem('token'); // 从 localStorage 获取 Token
+    let username = '匿名用户'; // 默认用户名
+
     // 获取 URL 参数
     function getURLParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
 
-    // 获取流 ID 参数
     const streamId = getURLParameter('stream_id');
-
-    if (streamId) {
-        // 获取直播间信息
-        const liveRoomApiUrl = `${window.location.origin}/live/live-room/${streamId}`;
-        fetch(liveRoomApiUrl)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch live room info: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                // 更新标题和描述
-                document.getElementById('live-title').textContent = data.title || "直播间";
-                document.getElementById('live-description').textContent = data.description || "暂无描述";
-
-                // 获取 HLS 地址
-                const streamApiUrl = `${window.location.origin}/stream/${streamId}`;
-                return fetch(streamApiUrl);
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch stream info: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                const hlsUrl = data.hls_url;
-                if (hlsUrl) {
-                    // 初始化 Video.js 播放器
-                    const player = videojs('hls-player', {
-                        autoplay: true,
-                        muted: true,
-                        playsinline: true,
-                    });
-
-                    // 设置播放器源
-                    player.src({
-                        src: hlsUrl,
-                        type: 'application/x-mpegURL',
-                    });
-                    player.play();
-                } else {
-                    alert("未能获取到有效的 HLS 地址！");
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching data:", error);
-                alert("加载直播间信息或流地址失败，请稍后重试！");
-            });
-    } else {
-        alert("缺少流 ID 参数！");
+    if (!streamId) {
+        alert("缺少 stream_id 参数！");
+        throw new Error("Missing stream_id");
     }
+
+    // 获取用户信息
+    async function fetchUserInfo(token) {
+        if (!token) return;
+        const response = await fetch(`${baseURL}/user/info`, {
+            method: 'GET',
+            headers: { 'Authorization': `${token}` },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            username = data.user.nickname;
+            document.getElementById('user-name').textContent = `Hello, ${username}`;
+        }
+    }
+
+    // 加载直播间信息和 HLS 地址
+    fetch(`/live/live-room/${streamId}`)
+        .then((res) => res.json())
+        .then((data) => {
+            document.getElementById('live-title').textContent = data.title || "直播间";
+            document.getElementById('live-description').textContent = data.description || "暂无描述";
+            return fetch(`/stream/${streamId}`);
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            const player = videojs('hls-player', { autoplay: true, muted: true, playsinline: true });
+            player.src({ src: data.hls_url, type: 'application/x-mpegURL' });
+        })
+        .catch(console.error);
+
+    // 初始化 WebSocket
+    const ws = new WebSocket(`ws://${window.location.host}/live/ws/${streamId}`);
+    const chatMessages = document.getElementById('chat-messages');
+
+    let isScrolledToBottom = true; // 记录当前chat-messages是否滚动到最底部
+
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+
+    // 接收消息
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        const messageElement = document.createElement('p');
+        messageElement.textContent = `${message.username}: ${message.content}`;
+        messageElement.className = message.username === username ? 'me' : 'other';
+        chatMessages.appendChild(messageElement);
+
+        // 判断是否需要滚动到最底部
+        if (isScrolledToBottom) {
+            chatMessages.scrollTop = chatMessages.scrollHeight; // 滚动到最底部
+        }
+    };
+
+    // 监听滚动事件
+    chatMessages.addEventListener('scroll', () => {
+        // 检查滚动条是否在最底部
+        isScrolledToBottom = chatMessages.scrollTop + chatMessages.clientHeight >= chatMessages.scrollHeight - 5;
+    });
+
+    // 发送消息
+    chatSend.addEventListener('click', () => {
+        if (chatInput.value.trim() !== "") {
+            // 发送的消息包括 token 和内容
+            if (!token) {
+                alert("你还未登录, 请先登录!");
+                throw new Error("No token found in localStorage");
+            }
+            const message = {
+                token: token,  // 需要验证的 token
+                content: chatInput.value.trim()
+            };
+
+            ws.send(JSON.stringify(message));  // 发送消息
+            chatInput.value = "";
+        }
+    });
+
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') chatSend.click();
+    });
+
+    function adjustChatSectionHeight() {
+        const videoElement = document.querySelector('.video-js');
+        const chatSection = document.querySelector('.chat-section');
+
+        if (!document.fullscreenElement && videoElement && chatSection) {
+            // 获取video-js的实际高度
+            const videoHeight = videoElement.clientHeight;
+            // 将chat-section的最大高度设置为video-js的高度
+            chatSection.style.maxHeight = `${videoHeight}px`;
+            chatSection.style.minHeight = `${videoHeight}px`;
+        }
+    }
+
+    // 窗口改变大小事件监听器
+    window.addEventListener('resize', adjustChatSectionHeight);
+
+    // 初始调整
+    adjustChatSectionHeight();
+
+    fetchUserInfo(token);
 </script>
 </body>
 </html>

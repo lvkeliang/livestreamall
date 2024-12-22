@@ -18,7 +18,7 @@ var jwtKey = []byte("12190711")
 func SetToken(mail string, password string, c *gin.Context) {
 
 	// 获取密码
-	uID, userPassword, err := service.SearchUserPassword("mail", mail)
+	uID, nickname, userPassword, err := service.SearchUserPassword("mail", mail)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -37,10 +37,12 @@ func SetToken(mail string, password string, c *gin.Context) {
 	var user struct {
 		UID      string `json:"uID"`
 		Password string `json:"password"`
+		Username string `json:"Username"`
 	}
 
 	user.UID = uID
 	user.Password = userPassword
+	user.Username = nickname
 
 	/*
 		if err := c.ShouldBindJSON(&user); err != nil {
@@ -59,7 +61,8 @@ func SetToken(mail string, password string, c *gin.Context) {
 	// 创建 JWT
 	expireTime := time.Now().Add(time.Hour * 24).Unix()
 	claims := &model.Claims{
-		UID: user.UID,
+		UID:      user.UID,
+		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime,
 		},
@@ -99,6 +102,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 		if claims, ok := token.Claims.(*model.Claims); ok && token.Valid {
 			c.Set("uID", claims.UID)
+			c.Set("Username", claims.Username)
 			c.Set("token", tokenString)
 		} else {
 			//util.RespInvalidToken(c)
@@ -109,4 +113,23 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// 验证 token
+func validateToken(tokenString string) (bool, *model.Claims, error) {
+	// 验证 token 是否有效
+	token, err := jwt.ParseWithClaims(tokenString, &model.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil {
+		return false, nil, fmt.Errorf("token 解析错误: %v", err)
+	}
+
+	// 如果 token 合法且 claims 类型正确
+	if claims, ok := token.Claims.(*model.Claims); ok && token.Valid {
+		return true, claims, nil
+	}
+
+	return false, nil, fmt.Errorf("无效的 token")
 }

@@ -1,6 +1,13 @@
 // 获取当前页面的协议、主机名和端口，生成动态的 API 基础 URL
 const baseURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
 
+function hashPassword(password) {
+    // 使用 SHA-256 哈希密码
+    const hash = CryptoJS.SHA256(password);
+    // 转换为十六进制字符串
+    return hash.toString(CryptoJS.enc.Hex);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // Select the card elements
     const loginCard = document.querySelector('.login');
@@ -35,16 +42,20 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        sendRequest("/user/login", `mail=${encodeURIComponent(loginMail)}&password=${encodeURIComponent(loginPassword)}`)
+        // 对密码进行加密
+        const encryptedPassword = hashPassword(loginPassword); // 直接调用，不需要 .then()
+
+        // 加密后的密码
+        const requestBody = `mail=${encodeURIComponent(loginMail)}&password=${encodeURIComponent(encryptedPassword)}`;
+
+        sendRequest("/user/login", requestBody)
             .then(data => {
                 if (data.status === 10000) {
-                    const token = data.token; // 获取返回的 token
-                    // 可以将 token 保存到本地存储或 sessionStorage 中
+                    const token = data.token;
                     localStorage.setItem("token", token);
-                    // 跳转到主页或执行其他操作
                     window.location.href = `${baseURL}/home`;
                 } else {
-                    alert("登录失败：" + data.info);  // 显示后端返回的失败信息
+                    alert("登录失败：" + data.info);
                 }
             })
             .catch(error => console.error("请求失败:", error));
@@ -74,17 +85,40 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        const requestBody = `mail=${encodeURIComponent(registerMail)}&password=${encodeURIComponent(registerPassword)}&nickname=${encodeURIComponent(registerNickname)}`;
+        // 对密码进行加密
+        const encryptedPassword = hashPassword(registerPassword); // 直接调用，不需要 .then()
+
+        const requestBody = `mail=${encodeURIComponent(registerMail)}&password=${encodeURIComponent(encryptedPassword)}&nickname=${encodeURIComponent(registerNickname)}`;
 
         sendRequest("/user/register", requestBody)
             .then(data => {
                 if (data.status === 10000) {
-                    alert("注册成功！请登录");
+                    // alert("注册成功！正在自动登录...");
+
+                    // 自动登录，发送注册的邮箱和加密后的密码
+                    handleAutoLogin(registerMail, encryptedPassword);
                 } else {
-                    alert("注册失败：" + data.info);  // 显示后端返回的失败信息
+                    alert("注册失败：" + data.info);
                 }
             })
             .catch(error => console.error("请求失败:", error));
+    }
+
+    // 自动登录函数
+    function handleAutoLogin(mail, encryptedPassword) {
+        const requestBody = `mail=${encodeURIComponent(mail)}&password=${encodeURIComponent(encryptedPassword)}`;
+
+        sendRequest("/user/login", requestBody)
+            .then(data => {
+                if (data.status === 10000) {
+                    const token = data.token;
+                    localStorage.setItem("token", token); // 保存 token
+                    window.location.href = `${baseURL}/home`; // 跳转到主页
+                } else {
+                    alert("登录失败：" + data.info); // 登录失败时的提示
+                }
+            })
+            .catch(error => console.error("自动登录请求失败:", error));
     }
 
     // 发送请求的通用函数

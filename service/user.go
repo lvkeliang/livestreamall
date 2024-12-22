@@ -16,8 +16,8 @@ func SearchUser(attribute string, value string) (u model.User, err error) {
 // SearchUserPassword 用于查找用户密码
 // attributes: 用于查找user的字段,该字段必须有唯一性[uid,mail,nickname]
 // value：字段的值
-func SearchUserPassword(attribute string, value string) (uID string, password string, err error) {
-	uID, password, err = dao.SearchUserPassword(attribute, value)
+func SearchUserPassword(attribute string, value string) (uID string, nickname string, password string, err error) {
+	uID, nickname, password, err = dao.SearchUserPassword(attribute, value)
 	return
 }
 

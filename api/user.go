@@ -103,7 +103,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	_, userpassword, err := service.SearchUserPassword("mail", mail)
+	_, _, userpassword, err := service.SearchUserPassword("mail", mail)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

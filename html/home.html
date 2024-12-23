@@ -187,7 +187,7 @@
   async function startLive() {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Please login first.');
+      alert('你还未登录, 请先登录!');
       window.location.href = `${baseURL}/user/login`;
       return;
     }

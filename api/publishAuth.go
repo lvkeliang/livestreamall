@@ -52,10 +52,18 @@ func PublishAuth(c *gin.Context) {
 		if existingRoom.IsLive {
 			c.JSON(http.StatusConflict, gin.H{"error": "stream is already live"})
 			return
+		} else if existingRoom.UserID != userID {
+			// 不是这个直播间的主播
+			c.JSON(http.StatusForbidden, gin.H{"error": "user not allowed"})
+			return
 		}
 		// 更新直播间状态为直播中
 		existingRoom.IsLive = true
 		dao.DB.Save(&existingRoom)
+	} else {
+		// 如果直播间不存在,拒绝
+		c.JSON(http.StatusForbidden, gin.H{"error": "live room not exist"})
+		return
 	}
 
 	// 返回成功响应，允许 Nginx 推流

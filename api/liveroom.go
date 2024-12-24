@@ -10,6 +10,7 @@ import (
 	"livestreamall/config"
 	"livestreamall/dao"
 	"livestreamall/model"
+	"livestreamall/util"
 	"net/http"
 	"time"
 )
@@ -119,7 +120,6 @@ func StartLive(c *gin.Context) {
 		return
 	}
 
-	// 生成 JWT 推流密钥
 	token, exists := c.Get("token")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
@@ -140,7 +140,6 @@ func StartLive(c *gin.Context) {
 	if err == nil {
 		// 如果直播间已存在且为当前用户的直播间，更新直播间信息
 		existingRoom.Title = request.Title
-		existingRoom.StreamName = token.(string)
 		existingRoom.Description = request.Description
 		dao.DB.Save(&existingRoom) // 更新数据库中的记录
 
@@ -148,14 +147,16 @@ func StartLive(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"stream_name": userID,
 			"push_url":    config.Stream.PushBaseURL,
-			"token":       token,
+			"stream_key":  existingRoom.StreamName + "?claim=" + token.(string),
 			"user_id":     userID,
 		})
 	} else {
-		// 创建新的直播间记录
+		// 生成用户的直播间名称
+		streamName := util.HashString(userID.(string))
+
 		newRoom := model.LiveRoom{
 			Title:       request.Title,
-			StreamName:  token.(string),
+			StreamName:  streamName,
 			Description: request.Description,
 			IsLive:      false,
 			UserID:      userID.(string), // 关联用户ID
@@ -164,9 +165,9 @@ func StartLive(c *gin.Context) {
 
 		// 返回结果
 		c.JSON(http.StatusOK, gin.H{
-			"stream_name": userID,
+			"stream_name": streamName,
 			"push_url":    config.Stream.PushBaseURL,
-			"token":       token,
+			"stream_key":  streamName + "?claim=" + token.(string),
 			"user_id":     userID,
 		})
 	}

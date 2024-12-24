@@ -124,7 +124,7 @@ func HandleConnections(c *gin.Context) {
 	}
 }
 
-// 广播消息到对应直播间
+// HandleMessages 广播消息到对应直播间
 func HandleMessages() {
 	for {
 		msg := <-broadcast

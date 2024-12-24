@@ -248,8 +248,8 @@
 
 ```json
 {
-    "stream_name": "4",
-    "token": "your-stream-key",
+    "stream_name": "example-tream-name",
+    "stream_key": "your-stream-key",
     "user_id": "4"
 }
 ```

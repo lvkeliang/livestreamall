@@ -1,0 +1,136 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1400px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    padding: 20px;
+}
+
+.player-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.description {
+    font-size: 1rem;
+    color: #7f8c8d;
+    margin: 0 0 10px;
+}
+
+.player-message-container {
+    display: flex;
+    align-items: stretch; /* 确保子元素高度一致 */
+    gap: 20px;
+}
+
+.video-js {
+    flex: 3; /* 播放器占3份 */
+    height: auto; /* 高度自动调整 */
+    aspect-ratio: 16 / 9; /* 确保比例 */
+}
+
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.chat-header {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 8px 8px 0 0;
+}
+
+.chat-messages {
+    flex: 1;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.chat-input-container {
+    display: flex;
+    border-top: 1px solid #ddd;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.chat-input {
+    flex-grow: 1; /* 使输入框填充剩余空间 */
+    flex-shrink: 1; /* 允许输入框在空间不足时缩小 */
+    max-width: calc(100% - 100px); /* 设置输入框的最大宽度，避免按钮被挤出 */
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 0 0 0 8px;
+    outline: none;
+}
+
+.chat-send {
+    flex-shrink: 0; /* 使按钮不缩小 */
+    width: 80px; /* 给按钮设置固定宽度 */
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 0 0 8px 0;
+    white-space: nowrap; /* 防止按钮文字换行 */
+}
+
+.chat-send:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+    }
+
+    .player-message-container {
+        flex-direction: column;
+    }
+
+    .video-js {
+        width: 100%;
+    }
+
+    .chat-section {
+        width: 100%;
+    }
+}

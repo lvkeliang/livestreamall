@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"livestreamall/config"
 	"livestreamall/dao"
@@ -13,25 +12,20 @@ import (
 
 func PublishAuth(c *gin.Context) {
 	// 从请求参数中获取 token 和推流信息
-	//tokenString := c.PostForm("key") // 从 Nginx 的 `on_publish` 中传递的 token
-	streamName := c.PostForm("name") // 推流名称(串流密钥)
+	streamName := c.PostForm("name") // 推流名称
 	app := c.PostForm("app")         // RTMP 应用名称
+	claim := c.PostForm("claim")     // 此处就是用户token
 	ip := c.ClientIP()               // 推流客户端 IP
 
-	//fmt.Println("key: ", tokenString)
-	fmt.Println("name:", streamName)
-	fmt.Println("app:", app)
-	fmt.Println("ip:", ip)
-
 	// 验证必要参数
-	if app == "" || streamName == "" {
+	if app == "" || streamName == "" || claim == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing required parameters"})
 		c.Abort()
 		return
 	}
 
 	// 验证 token 是否有效
-	token, err := jwt.ParseWithClaims(streamName, &model.Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(claim, &model.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
@@ -50,8 +44,6 @@ func PublishAuth(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("uid:", userID)
-
 	// 检查直播间是否已存在
 	var existingRoom model.LiveRoom
 	err = dao.DB.Where("stream_name = ?", streamName).First(&existingRoom).Error
@@ -69,7 +61,7 @@ func PublishAuth(c *gin.Context) {
 	// 返回成功响应，允许 Nginx 推流
 	c.JSON(http.StatusOK, gin.H{
 		"message":     "publish authorized",
-		"stream_name": userID,
+		"stream_name": streamName,
 		"ip":          ip,
 		"user_id":     userID,
 	})
